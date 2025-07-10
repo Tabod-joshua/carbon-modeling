@@ -1,1 +1,1 @@
-fix: Downgrade pydantic
+fix: Add gunicorn, whitenoise, and dj-database-url to requirements.txt
