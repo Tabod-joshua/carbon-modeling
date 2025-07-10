@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcosystemPlus - Carbon Modelling | Advanced Farm Carbon Calculator</title>
+    
+    <!-- Google Fonts for professional typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS (CDN build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js for simple bar chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- AOS (animate on scroll) -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Swiper for slideshow dashboard -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper@9/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper@9/swiper-bundle.min.js"></script>
+
+    <!-- Particles.js for dynamic background -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Custom CSS for enhanced dropdowns -->
+    <style>
+        /* ========================================
+           CANONICAL COLOR PALETTE TOKENS
+           ========================================
+           All new styles MUST reference these tokens for consistency.
+           Team: Please use these CSS custom properties instead of hardcoded colors.
+        */
+        :root {
+            --cc-white: #FFFFFF;
+            --cc-dark-green: #004225;   /* brand dark green */
+            --cc-light-gray: #F5F7F8;  /* subtle background */
+            
+            /* Extended brand palette for consistency */
+            --cc-brand-green: #166534;  /* current primary green */
+            --cc-brand-green-dark: #14532d;  /* darker variant */
+            --cc-brand-green-light: #22c55e;  /* lighter variant */
+            --cc-neutral-50: #f8fafc;
+            --cc-neutral-100: #f1f5f9;
+            --cc-neutral-200: #e2e8f0;
+            --cc-neutral-300: #cbd5e1;
+            --cc-neutral-400: #94a3b8;
+            --cc-neutral-500: #64748b;
+            --cc-neutral-600: #475569;
+            --cc-neutral-700: #334155;
+            --cc-neutral-800: #1e293b;
+            --cc-neutral-900: #0f172a;
+        }
+        
+        /* Calculator form text color contrast rules */
+        .calculator,
+        .calculator label,
+        .calculator p,
+        .calculator span {
+            color: var(--cc-dark-green);
+        }
+        
+        /* Override any white text on light backgrounds in calculator */
+        .calculator .text-white {
+            color: var(--cc-dark-green) !important;
+        }
+        
+        /* Exception for submit button - keep white text */
+        .calculator button[type="submit"].text-white,
+        .calculator button[type="submit"] .text-white,
+        .calculator button[type="submit"] span {
+            color: white !important;
+        }
+        
+        /* Override input text styling in calculator */
+        .calculator input.text-white {
+            color: var(--cc-dark-green) !important;
+        }
+        
+        .calculator input.placeholder-white\/60::placeholder {
+            color: var(--cc-dark-green) !important;
+            opacity: 0.6;
+        }
+        
+        /* Override icon colors in calculator */
+        .calculator .text-white\/80 {
+            color: var(--cc-dark-green) !important;
+            opacity: 0.8;
+        }
+        
+        .calculator .text-white\/60 {
+            color: var(--cc-dark-green) !important;
+            opacity: 0.6;
+        }
+        
+        .calculator .text-white\/70 {
+            color: var(--cc-dark-green) !important;
+            opacity: 0.7;
+        }
+        
+        /* Dark background sections with proper contrast */
+        .dark-section {
+            background: var(--cc-dark-green);
+            color: var(--cc-white);
+        }
+        
+        .dark-section h1,
+        .dark-section h2,
+        .dark-section h3,
+        .dark-section h4,
+        .dark-section h5,
+        .dark-section h6,
+        .dark-section p,
+        .dark-section span,
+        .dark-section label {
+            color: var(--cc-white);
+        }
+        
+        /* Enhanced scrollbar for dropdown */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: var(--cc-neutral-300) var(--cc-neutral-100);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--cc-neutral-100);
+            border-radius: 3px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: var(--cc-neutral-300);
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: var(--cc-neutral-400);
+        }
+        
+        /* Dropdown z-index fix */
+        .dropdown-portal {
+            position: relative;
+        }
+        
+        .dropdown-portal .dropdown-menu {
+            position: absolute;
+        }
+
+        .dropdown-portal.expanded {
+            height: auto;
+            overflow: visible;
+        }
+        
+        /* Smooth focus transitions */
+        .searchable-dropdown-input:focus {
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        
+        /* Enhanced hover states */
+        .dropdown-option:hover {
+            transform: translateX(4px);
+            transition: all 0.15s ease;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 640px) {
+            .searchable-dropdown {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            /* Reduce padding on mobile */
+            .glass-card {
+                padding: 1rem !important;
+            }
+            
+            /* Better mobile text sizes */
+            .text-4xl {
+                font-size: 2rem !important;
+            }
+            
+            .text-3xl {
+                font-size: 1.75rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Mobile form improvements */
+            .neomorphic {
+                padding: 0.75rem 1rem !important;
+                font-size: 16px;
+            }
+            
+            /* Better mobile spacing */
+            .space-y-8 > :not([hidden]) ~ :not([hidden]) {
+                margin-top: 1.5rem !important;
+            }
+            
+            .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+                margin-top: 1rem !important;
+            }
+            
+            /* Mobile grid improvements */
+            .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+            
+            .md\:grid-cols-3 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            
+            /* Mobile button improvements */
+            button {
+                padding: 0.875rem 1.5rem !important;
+                font-size: 1rem !important;
+            }
+            
+            /* Mobile header padding */
+            .py-20 {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+            
+            /* Mobile container padding */
+            .container {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
+        
+        /* Tablet responsiveness */
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .glass-card {
+                padding: 1.5rem !important;
+            }
+            
+            .py-20 {
+                padding-top: 3rem !important;
+                padding-bottom: 3rem !important;
+            }
+        }
+        
+        /* Extra small devices (phones, 375px and down) */
+        @media (max-width: 375px) {
+            .text-lg {
+                font-size: 1rem !important;
+            }
+            
+            .px-6 {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            
+            .py-4 {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+            
+            .rounded-3xl {
+                border-radius: 1rem !important;
+            }
+        }
+        
+        /* Loading animation for better UX */
+        .dropdown-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Glassmorphism Enhancement */
+        .bg-gradient-radial {
+            background: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-to));
+        }
+        
+        /* Responsive text sizing */
+        @media (max-width: 768px) {
+            .bg-white\/15 {
+                backdrop-filter: blur(20px);
+            }
+        }        
+        
+        /* Touch-friendly improvements for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .hover\:shadow-lg:hover {
+                box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            
+            .hover\:scale-105:hover {
+                transform: scale(1.02);
+            }
+            
+            /* Larger touch targets */
+            button, .cursor-pointer {
+                min-height: 44px;
+            }
+        }
+        
+        /* Custom checkbox animations */
+        input[type="checkbox"]:checked + .checkbox-custom {
+            background: linear-gradient(135deg, var(--cc-brand-green), var(--cc-brand-green-dark));
+            border-color: var(--cc-brand-green);
+        }
+        
+        /* Loading shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Beautiful background animations */
+        .animated-bg {
+            background: linear-gradient(-45deg, var(--cc-white), var(--cc-light-gray), var(--cc-light-gray), var(--cc-white), var(--cc-neutral-50));
+            background-size: 400% 400%;
+            animation: subtleShift 20s ease-in-out infinite;
+        }
+        
+        @keyframes subtleShift {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 50% 100%; }
+            75% { background-position: 50% 0%; }
+        }
+        
+        /* Floating orb animations */
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(22, 101, 52, 0.1), rgba(22, 101, 52, 0.05));
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+        
+        .floating-orb:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-orb:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 15%;
+            animation-delay: -3s;
+        }
+        
+        .floating-orb:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -6s;
+        }
+        
+        @keyframes floatOrb {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(15px) rotate(240deg); }
+        }
+        
+        /* Clean white neumorphic controls */
+        .neomorphic {
+            background: var(--cc-white);
+            box-shadow: 
+                inset 3px 3px 6px rgba(22, 101, 52, 0.05),
+                inset -3px -3px 6px rgba(255, 255, 255, 1),
+                3px 3px 6px rgba(22, 101, 52, 0.08);
+            border: 1px solid rgba(22, 101, 52, 0.1);
+        }
+        
+        .neomorphic:hover {
+            background: var(--cc-white);
+            box-shadow: 
+                inset 2px 2px 4px rgba(22, 101, 52, 0.08),
+                inset -2px -2px 4px rgba(255, 255, 255, 1),
+                4px 4px 8px rgba(22, 101, 52, 0.12);
+            border-color: rgba(22, 101, 52, 0.2);
+        }
+        
+        .neomorphic:active {
+            box-shadow: 
+                inset 4px 4px 8px rgba(22, 101, 52, 0.1),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Clean white cards with green accents */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(22, 101, 52, 0.1);
+            box-shadow: 
+                0 10px 30px -5px rgba(22, 101, 52, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(22, 101, 52, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 40px -5px rgba(22, 101, 52, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+        
+        /* Clean white toggle switches with green active state */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 25px;
+            border: 2px solid #e0e0e0;
+            box-shadow: 
+                inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+                inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border-radius: 50%;
+            box-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.2),
+                -1px -1px 2px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .toggle-switch.active {
+            background: linear-gradient(145deg, #166534, #14532d);
+            border-color: #166534;
+            box-shadow: 
+                inset 2px 2px 4px rgba(20, 83, 45, 0.4),
+                inset -2px -2px 4px rgba(22, 101, 52, 0.2);
+        }
+        
+        .toggle-switch.active::before {
+            left: 32px;
+            background: linear-gradient(145deg, #ffffff, #f0fff0);
+            box-shadow: 
+                2px 2px 4px rgba(20, 83, 45, 0.3),
+                -1px -1px 2px rgba(255, 255, 255, 1);
+        }
+        
+        /* Explicit rules for select, input, and textarea elements */
+        .calculator select,
+        .calculator input,
+        .calculator textarea {
+            background-color: var(--cc-white);
+            color: var(--cc-dark-green);
+            border: 1px solid var(--cc-dark-green);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .calculator select:focus,
+        .calculator input:focus,
+        .calculator textarea:focus {
+            outline: 2px solid var(--cc-dark-green);
+        }
+        
+        /* Fix native select arrow visibility */
+        .calculator select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23004225" d="M6 9L1.5 4.5h9L6 9z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 12px;
+            padding-right: 2rem;
+        }
+        
+        /* Fix dropdown z-index layering to prevent blocking */
+        .calculator .relative {
+            z-index: 10;
+        }
+        
+        
+        
+        /* Ensure dropdown menus appear above other elements */
+        .calculator .absolute {
+            z-index: 1000;
+        }
+        
+        /* Screen reader only utility class */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Improved focus styles for better accessibility */
+        .neomorphic:focus {
+            outline: 2px solid var(--cc-brand-green);
+            outline-offset: 2px;
+        }
+        
+        .neomorphic:focus-visible {
+            outline: 2px solid var(--cc-brand-green);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(22, 101, 52, 0.2);
+        }
+        
+        /* z-index is now handled by the .dropdown-open class for better control */
+        
+        /* Dropdown transition animations */
+        .slide-fade-enter-active, .slide-fade-leave-active {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slide-fade-enter-from, .slide-fade-leave-to {
+            opacity: 0;
+            transform: translateY(-10px);
+            max-height: 0;
+        }
+        
+        .slide-fade-enter-to, .slide-fade-leave-from {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 256px; /* 16rem = 256px */
+        }
+    </style>
+    
+    <!-- Custom Tailwind config for brand palette -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ffffff',
+                            100: '#f8fffe',
+                            200: '#f0fffc',
+                            300: '#e0fff7',
+                            400: '#c0ffeb',
+                            500: '#166534',
+                            600: '#14532d',
+                            700: '#0f2419',
+                            800: '#0a1d14',
+                            900: '#051610',
+                        },
+                        forest: {
+                            50: '#f7fee7',
+                            100: '#ecfccb',
+                            200: '#d9f99d',
+                            300: '#bef264',
+                            400: '#a3e635',
+                            500: '#84cc16',
+                            600: '#65a30d',
+                            700: '#4d7c0f',
+                            800: '#365314',
+                            900: '#1a2e05',
+                        },
+                        carbon: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                    },
+                    boxShadow: {
+                        glass: '0 25px 45px -12px rgba(22, 101, 52, 0.25)',
+                        'glass-inset': 'inset 0 1px 0 0 rgba(255,255,255,0.5)',
+                        'glass-strong': '0 32px 64px -12px rgba(22, 101, 52, 0.4)',
+                        'eco': '0 20px 25px -5px rgba(22, 101, 52, 0.3), 0 10px 10px -5px rgba(22, 101, 52, 0.1)',
+                        'carbon': '0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06)',
+                        'glow-green': '0 0 40px rgba(22, 101, 52, 0.6)',
+                        'inner-glow': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.3)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.2s ease-in-out',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideDown: {
+                            '0%': { opacity: '0', transform: 'translateY(-20px) scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        pulseSoft: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.7' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 20px rgba(22, 163, 74, 0.3)' },
+                            '100%': { boxShadow: '0 0 30px rgba(22, 163, 74, 0.6)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="font-sans antialiased animated-bg text-gray-900 min-h-screen overflow-x-hidden" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <!-- Particles.js Background -->
+    <div id="particles-js" class="fixed inset-0 z-0 pointer-events-none opacity-10"></div>
+    
+    <!-- Beautiful Background Animations -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        
+        <!-- Subtle grid pattern -->
+        <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, rgba(22, 101, 52, 0.3) 1px, transparent 0); background-size: 40px 40px;"></div>
+    </div>
+    
+    <div id="app" class="relative z-10">
+        <!-- Hero -->
+        <header class="relative py-20 overflow-hidden" data-aos="fade-down">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-primary-600/5"></div>
+            <div class="container mx-auto px-6 text-center max-w-4xl relative z-10">
+                <div class="glass-card rounded-3xl p-12">
+                    <div class="flex items-center justify-center mb-8">
+                        <div class="bg-primary-500 p-4 rounded-2xl mr-4 shadow-lg">
+                            <i data-lucide="leaf" class="w-8 h-8 text-white"></i>
+                        </div>
+                                        <h1 class="text-4xl lg:text-5xl font-black text-primary-700 tracking-tight">
+                            EcosystemPlus
+                        </h1>
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-bold mb-6 text-gray-800 tracking-tight">Carbon Modelling</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto font-medium">Advanced farm carbon footprint analysis using IPCC 2019 methodology with real-time soil & weather data from Cameroon</p>
+                    <div class="flex justify-center mt-8">
+                        <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
+                            <span class="flex items-center bg-primary-50 text-primary-700 px-4 py-2 rounded-full border border-primary-200 font-medium">
+                                <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i>IPCC 2019 Certified
+                            </span>
+                            <span class="flex items-center bg-primary-50 text-primary-700 px-4 py-2 rounded-full border border-primary-200 font-medium">
+                                <i data-lucide="satellite" class="w-4 h-4 mr-2"></i>Real-time Data
+                            </span>
+                            <span class="flex items-center bg-primary-50 text-primary-700 px-4 py-2 rounded-full border border-primary-200 font-medium">
+                                <i data-lucide="zap" class="w-4 h-4 mr-2"></i>Instant Results
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Calculator Section -->
+        <section class="relative py-20">
+            <div class="container mx-auto px-6 max-w-7xl">
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Calculator Card -->
+                    <div class="lg:col-span-2" data-aos="fade-right">
+                        <div class="glass-card rounded-3xl p-8 lg:p-12 transition-all duration-500">
+                            <div class="flex items-center justify-between mb-8">
+                                <h2 class="text-2xl font-bold flex items-center text-gray-800 tracking-tight">
+                                    <div class="bg-primary-500 p-3 rounded-2xl mr-4 shadow-lg">
+                                        <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                    Carbon Calculator
+                                </h2>
+                                <div class="text-sm text-primary-700 bg-primary-50 px-4 py-2 rounded-full border border-primary-200 font-medium">
+                                    Season: <span class="font-semibold">{{ currentSeason === 'rainy' ? 'Rainy Season' : 'Dry Season' }}</span>
+                                </div>
+                            </div>
+                            <!-- Form -->
+                            <form @submit.prevent="calculateEmissions" class="calculator space-y-8">
+                                <!-- 1. Farm basics -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center tracking-tight">
+                                        <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-primary-600"></i>
+                                        Farm Information
+                                    </h3>
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-gray-700 flex items-center mb-2 tracking-tight">
+                                                <i data-lucide="ruler" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                                Farm Size (hectares)
+                                            </label>
+                                            <input v-model.number="formData.farm_size" required type="number" min="0.1" step="0.1"
+                                                   class="neomorphic w-full px-6 py-4 rounded-2xl text-gray-800 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500" 
+                                                   placeholder="Enter farm size..." />
+                                        </div>
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-gray-700 flex items-center mb-2 tracking-tight">
+                                                <i data-lucide="map" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                                Commune Location
+                                            </label>
+                                            <searchable-dropdown
+                                                v-model="formData.commune"
+                                                :options="communes"
+                                                placeholder="Search commune..."
+                                                required
+                                            ></searchable-dropdown>
+                                        </div>
+                                    </div>
+                                </div>
+                                            
+                                <!-- 2. Farming practice -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                        <i data-lucide="sprout" class="w-5 h-5 mr-2 text-primary-600"></i>
+                                        Farming Method
+                                    </h3>
+                                    <div class="space-y-3">
+                                        <label class="font-semibold text-gray-700 flex items-center mb-2">
+                                            <i data-lucide="settings" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                            Select Your Farming Practice
+                                        </label>
+                                        <searchable-dropdown
+                                            v-model="formData.farming_practice"
+                                            :options="farmingPractices"
+                                            placeholder="Select farming method"
+                                            value-key="value"
+                                            label-key="label"
+                                        ></searchable-dropdown>
+                                        <p class="text-xs text-white/60 mt-2">💡 Choose your main farming approach: Traditional methods use natural techniques, while modern methods may include synthetic inputs and technology.</p>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Fertiliser -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                                        <i data-lucide="beaker" class="w-5 h-5 mr-2"></i>
+                                        Fertilizer Application
+                                    </h3>
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-white flex items-center">
+                                                <i data-lucide="beaker" class="w-4 h-4 mr-2 text-white/80"></i>
+                                                Fertilizer Type
+                                            </label>
+                                        <searchable-dropdown
+                                            v-model="formData.fertilizer_type"
+                                            :options="fertilizerTypes"
+                                            placeholder="Select fertilizer type"
+                                            value-key="value"
+                                            label-key="label"
+                                        ></searchable-dropdown>
+                                        <p class="text-xs text-white/60 mt-2">🌱 Select your primary fertilizer: Organic fertilizers (compost, manure) have lower emissions than synthetic chemical fertilizers.</p>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-white flex items-center">
+                                                <i data-lucide="gauge" class="w-4 h-4 mr-2 text-white/80"></i>
+                                                Application Rate (kg/ha)
+                                            </label>
+                                            <input v-model.number="formData.fertilizer_rate" required type="number" min="0" step="0.1"
+                                                   class="neomorphic w-full px-6 py-4 rounded-2xl text-white placeholder-white/60 transition-all duration-300 focus:outline-none" 
+                                                   placeholder="Enter rate..." />
+                                        </div>
+                                    </div>
+                                </div>
+                                                    
+                                <!-- 4. Crop Information -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                                        <i data-lucide="wheat" class="w-5 h-5 mr-2"></i>
+                                        Crop Types on Farm
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <label class="font-semibold text-white flex items-center">
+                                            <i data-lucide="leaf" class="w-4 h-4 mr-2 text-white/80"></i>
+                                            Select all crop types grown on your farm:
+                                        </label>
+                                        <multi-select-dropdown
+                                            v-model="formData.crop_classes"
+                                            :options="cropClasses"
+                                            placeholder="Select crop types grown on your farm"
+                                            value-key="value"
+                                            label-key="label"
+                                        ></multi-select-dropdown>
+                                        <p class="text-xs text-white/60 mt-2">🌾 Choose all crop types you grow: Different crops have varying carbon storage and emission characteristics. You can select multiple types.</p>
+                                        <div v-if="formData.crop_classes.length === 0" class="text-red-300 text-sm mt-2">
+                                            ⚠️ Please select at least one crop type
+                                        </div>
+                                    </div>
+                                </div>
+                                                    
+                                <!-- 5. Tillage & Irrigation -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                                        <i data-lucide="tractor" class="w-5 h-5 mr-2"></i>
+                                        Field Management
+                                    </h3>
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-white flex items-center">
+                                                <i data-lucide="shovel" class="w-4 h-4 mr-2 text-white/80"></i>
+                                                Tillage Method
+                                            </label>
+                                        <searchable-dropdown
+                                            v-model="formData.tillage_practice"
+                                            :options="tillagePractices"
+                                            placeholder="Select tillage method"
+                                            value-key="value"
+                                            label-key="label"
+                                        ></searchable-dropdown>
+                                        <p class="text-xs text-white/60 mt-2">🚜 Describe how you prepare soil: No-till methods preserve soil carbon better, while conventional plowing releases more stored carbon into the atmosphere.</p>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <label class="font-semibold text-white flex items-center">
+                                                <i data-lucide="droplets" class="w-4 h-4 mr-2 text-white/80"></i>
+                                                Irrigation System
+                                            </label>
+                                        <searchable-dropdown
+                                            v-model="formData.irrigation"
+                                            :options="irrigationOptions"
+                                            placeholder="Select irrigation system"
+                                            value-key="value"
+                                            label-key="label"
+                                        ></searchable-dropdown>
+                                        <p class="text-xs text-white/60 mt-2">💧 Choose your water system: Efficient irrigation like drip systems use less energy and water than flood irrigation, reducing overall emissions.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 6. Machinery / Fuel -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                                        <i data-lucide="fuel" class="w-5 h-5 mr-2"></i>
+                                        Machinery & Fuel
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <label class="font-semibold flex items-center text-white cursor-pointer group">
+                                            <div class="toggle-switch mr-4" :class="{ active: formData.uses_machinery }" @click="formData.uses_machinery = !formData.uses_machinery"></div>
+                                            <span>I use machinery for farming operations</span>
+                                        </label>
+                                        <div v-if="formData.uses_machinery" class="ml-9 space-y-2">
+                                            <label class="text-sm text-white/80 flex items-center">
+                                                <i data-lucide="droplet" class="w-4 h-4 mr-2 text-white/60"></i>
+                                                Monthly Fuel Consumption
+                                            </label>
+                                            <input v-model.number="formData.fuel_consumption" type="number" min="0" placeholder="Litres per month"
+                                                   class="neomorphic w-full max-w-xs px-4 py-3 rounded-xl text-white placeholder-white/60 transition-all duration-300 focus:outline-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                                            
+                                <!-- 7. Livestock -->
+                                <div class="glass-card rounded-2xl p-6 transition-all duration-300">
+                                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                                        <i data-lucide="dog" class="w-5 h-5 mr-2"></i>
+                                        Livestock Management
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <label class="font-semibold flex items-center text-white cursor-pointer group">
+                                            <div class="toggle-switch mr-4" :class="{ active: formData.keeps_livestock }" @click="formData.keeps_livestock = !formData.keeps_livestock"></div>
+                                            <span>I raise livestock on my farm</span>
+                                        </label>
+                                        <div v-if="formData.keeps_livestock" class="ml-9">
+                                            <p class="text-sm text-white/70 mb-4">Enter the number of animals you currently have:</p>
+                                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                <div v-for="animal in livestockTypes" :key="animal" class="space-y-2">
+                                                    <label class="capitalize text-sm text-white/80 flex items-center">
+                                                        <i :data-lucide="
+                                                            animal === 'cattle' ? 'dog' :
+                                                            animal === 'goats' ? 'sheep' :
+                                                            animal === 'sheep' ? 'sheep' :
+                                                            animal === 'pigs' ? 'beaker' :
+                                                            animal === 'poultry' ? 'egg' :
+                                                            animal === 'rabbits' ? 'activity' :
+                                                            'activity'" class="w-4 h-4 mr-2 text-white/60"></i>
+                                                        {{ animal }}
+                                                    </label>
+                                                    <input v-model.number="formData.livestock_counts[animal]" type="number" min="0" placeholder="0"
+                                                           class="neomorphic w-full px-4 py-3 rounded-xl text-white placeholder-white/60 transition-all duration-300 focus:outline-none" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                
+
+                                <!-- Submit -->
+                                <div class="pt-6">
+                                    <button type="submit" :disabled="loading"
+                                            class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-6 px-8 rounded-2xl font-bold text-lg shadow-xl disabled:opacity-50 flex items-center justify-center transition-all duration-500 hover:shadow-2xl hover:scale-105 disabled:hover:scale-100 group">
+                                        <span v-if="!loading" class="flex items-center">
+                                            <i data-lucide="zap" class="w-5 h-5 mr-3 group-hover:animate-pulse"></i>
+                                            Calculate Carbon Footprint
+                                        </span>
+                                        <span v-else class="flex items-center">
+                                            <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle>
+                                                <path d="M4 12a8 8 0 018-8" stroke-width="4" stroke-linecap="round"></path>
+                                            </svg>
+                                            Analyzing Farm Data…
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Sidebar -->
+                    <aside data-aos="fade-left" class="space-y-6">
+                        <!-- Live Stats Card -->
+                        <div class="glass-card rounded-3xl p-6">
+                            <h3 class="font-bold text-lg mb-4 flex items-center text-gray-800">
+                                <div class="bg-primary-500 p-2 rounded-xl mr-3">
+                                    <i data-lucide="activity" class="w-4 h-4 text-white"></i>
+                                </div>
+                                Live Statistics
+                            </h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="bg-primary-50 rounded-xl p-3 border border-primary-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700 flex items-center">
+                                            <i data-lucide="cloud-rain" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                            Current Season
+                                        </span>
+                                        <span class="font-semibold text-primary-700 bg-primary-100 px-2 py-1 rounded-lg">{{ currentSeason === 'rainy' ? 'Rainy' : 'Dry' }}</span>
+                                    </div>
+                                </div>
+                                <div class="bg-primary-50 rounded-xl p-3 border border-primary-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700 flex items-center">
+                                            <i data-lucide="calculator" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                            Calculations Today
+                                        </span>
+                                        <span class="font-semibold text-primary-700 bg-primary-100 px-2 py-1 rounded-lg">{{ calculationCount }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Card -->
+                        <div class="glass-card rounded-3xl p-6">
+                            <h3 class="font-bold text-lg mb-4 flex items-center text-gray-800">
+                                <div class="bg-primary-500 p-2 rounded-xl mr-3">
+                                    <i data-lucide="info" class="w-4 h-4 text-white"></i>
+                                </div>
+                                About This Tool
+                            </h3>
+                            <div class="space-y-3 text-sm text-gray-600">
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0"></i>
+                                    <span>IPCC 2019 certified methodology</span>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="satellite" class="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0"></i>
+                                    <span>Real-time satellite soil data</span>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="cloud" class="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0"></i>
+                                    <span>Live weather monitoring</span>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <i data-lucide="download" class="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0"></i>
+                                    <span>Downloadable PDF report</span>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                                </div>
+                            </div>
+        </section>
+
+        <!-- Results -->
+        <section v-if="showResults" class="py-20 relative bg-gray-50" data-aos="fade-up">
+            <div class="container mx-auto px-6 max-w-6xl">
+                <div class="glass-card rounded-3xl p-8 lg:p-12">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-primary-500 p-3 rounded-2xl mr-4 shadow-lg">
+                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800">Carbon Analysis Results</h2>
+                    </div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                        <div class="glass-card rounded-2xl p-6">
+                            <template v-if="results.emissions.raw_net_emissions < 0">
+                                <div class="text-center">
+                                    <i data-lucide="trees" class="w-16 h-16 text-primary-600 mx-auto mb-4"></i>
+                                    <h3 class="text-2xl font-bold text-primary-700 mb-2">Carbon Sink Farm! 🌱</h3>
+                                    <div class="text-4xl font-black text-gray-800 mb-2">
+                                        {{ Math.abs(results.emissions.raw_net_emissions).toFixed(1) }}
+                                    </div>
+                                    <p class="text-gray-600 mb-4">kg CO₂e sequestered per year</p>
+                                    <div class="bg-primary-50 rounded-xl p-4 border border-primary-200">
+                                        <p class="text-sm text-primary-700">🎉 Congratulations! Your farm removes more carbon than it emits, making it a carbon sink!</p>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="text-center">
+                                    <i data-lucide="gauge" class="w-16 h-16 text-gray-500 mx-auto mb-4"></i>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Total Carbon Emissions</h3>
+                                    <div class="text-4xl font-black text-gray-800 mb-2">
+                                        {{ results.emissions.total_emissions.toFixed(1) }}
+                                    </div>
+                                    <p class="text-gray-600 mb-4">kg CO₂e per year</p>
+                                    <div class="text-lg text-gray-700">
+                                        <span class="font-semibold">{{ (results.emissions.total_emissions / formData.farm_size).toFixed(1) }}</span> kg CO₂e per hectare
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                                                <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-primary-600"></i>
+                                Emissions Breakdown
+                            </h3>
+                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                <canvas ref="emissionsChart" class="w-full"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center mt-8 space-x-4">
+                        <button @click="downloadPDF" 
+                                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center shadow-lg hover:shadow-xl hover:scale-105">
+                            <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+                            Download PDF Report
+                        </button>
+                        <button @click="resetCalculator" 
+                                class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-3 rounded-2xl font-semibold transition-all duration-300 flex items-center shadow-lg hover:shadow-xl hover:scale-105">
+                            <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i>
+                            Calculate Another Farm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+                </div>
+                
+    <!-- Vue app script -->
+    <script>
+        const { createApp } = Vue;
+
+        // Multi-Select Dropdown Component
+        const MultiSelectDropdown = {
+            props: {
+                modelValue: Array,
+                options: Array,
+                placeholder: { type: String, default: 'Select options...' },
+                labelKey: { type: String, default: null },
+                valueKey: { type: String, default: null },
+                required: { type: Boolean, default: false }
+            },
+            emits: ['update:modelValue'],
+            data() {
+                return {
+                    isOpen: false,
+                    searchTerm: '',
+                    uniqueId: Math.random().toString(36).substr(2, 9)
+                };
+            },
+            computed: {
+                filteredOptions() {
+                    if (!this.searchTerm) return this.options;
+                    return this.options.filter(option => {
+                        const label = this.getLabel(option);
+                        return label.toLowerCase().includes(this.searchTerm.toLowerCase());
+                    });
+                },
+                selectedLabels() {
+                    return this.modelValue.map(value => {
+                        const option = this.options.find(opt => this.getValue(opt) === value);
+                        return option ? this.getLabel(option) : value;
+                    });
+                }
+            },
+            methods: {
+                getLabel(option) {
+                    if (this.labelKey) return option[this.labelKey];
+                    return typeof option === 'object' ? option.label || option.name || String(option) : String(option);
+                },
+                getValue(option) {
+                    if (this.valueKey) return option[this.valueKey];
+                    return typeof option === 'object' ? option.value || option.id || option : option;
+                },
+                toggleDropdown() {
+                    this.isOpen = !this.isOpen;
+                    if (this.isOpen) {
+                        this.$nextTick(() => {
+                            this.$refs.searchInput?.focus();
+                        });
+                    }
+                },
+                closeDropdown() {
+                    this.isOpen = false;
+                    this.searchTerm = '';
+                },
+                toggleOption(option) {
+                    const value = this.getValue(option);
+                    const currentValues = [...this.modelValue];
+                    const index = currentValues.indexOf(value);
+                    
+                    if (index > -1) {
+                        currentValues.splice(index, 1);
+                    } else {
+                        currentValues.push(value);
+                    }
+                    
+                    this.$emit('update:modelValue', currentValues);
+                },
+                isSelected(option) {
+                    return this.modelValue.includes(this.getValue(option));
+                },
+                removeSelection(value) {
+                    const currentValues = this.modelValue.filter(v => v !== value);
+                    this.$emit('update:modelValue', currentValues);
+                },
+                handleClickOutside(event) {
+                    if (!this.$el.contains(event.target)) {
+                        this.closeDropdown();
+                    }
+                }
+            },
+            mounted() {
+                document.addEventListener('click', this.handleClickOutside);
+            },
+            beforeUnmount() {
+                document.removeEventListener('click', this.handleClickOutside);
+            },
+            template: `
+                <div class="relative dropdown-portal">
+                    <div 
+                        class="neomorphic w-full px-6 py-4 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        @click="toggleDropdown"
+                        role="combobox"
+                        :aria-expanded="isOpen"
+                        :aria-haspopup="'listbox'"
+                        tabindex="0"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div v-if="modelValue.length === 0" class="text-gray-400 font-medium">{{ placeholder }}</div>
+                                <div v-else class="flex flex-wrap gap-2">
+                                    <span v-for="(label, index) in selectedLabels.slice(0, 2)" :key="index" 
+                                          class="inline-flex items-center bg-primary-100 text-primary-800 px-2 py-1 rounded-lg text-sm font-medium">
+                                        {{ label }}
+                                        <button @click.stop="removeSelection(modelValue[index])" 
+                                                class="ml-1 text-primary-600 hover:text-primary-800">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </button>
+                                    </span>
+                                    <span v-if="modelValue.length > 2" 
+                                          class="inline-flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded-lg text-sm font-medium">
+                                        +{{ modelValue.length - 2 }} more
+                                    </span>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-500 transition-all duration-300" 
+                                 :class="{ 'rotate-180': isOpen, 'text-primary-600': isOpen }" 
+                                 fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <transition name="slide-fade">
+                        <div v-if="isOpen" 
+                             class="relative w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-64 overflow-hidden">
+                            <div class="p-3 border-b border-gray-100">
+                                <input 
+                                    ref="searchInput"
+                                    type="text"
+                                    v-model="searchTerm"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50 font-medium"
+                                    :placeholder="'Search ' + placeholder.toLowerCase()"
+                                    role="searchbox"
+                                />
+                            </div>
+                            <div class="max-h-48 overflow-y-auto">
+                                <div v-if="filteredOptions.length === 0" 
+                                     class="p-4 text-center text-gray-500 text-sm font-medium">
+                                    No options found
+                                </div>
+                                <div v-else>
+                                    <div 
+                                        v-for="option in filteredOptions" 
+                                        :key="getValue(option)"
+                                        class="px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-primary-50 border-b border-gray-50 last:border-b-0 group"
+                                        :class="{ 'bg-primary-100': isSelected(option) }"
+                                        @click="toggleOption(option)"
+                                    >
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-semibold text-gray-800 group-hover:text-primary-700 transition-colors tracking-tight">{{ getLabel(option) }}</span>
+                                            <div class="flex items-center">
+                                                <input type="checkbox" 
+                                                       :checked="isSelected(option)"
+                                                       class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                                       @click.stop="toggleOption(option)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            `
+        };
+
+        // Searchable Dropdown Component
+        const SearchableDropdown = {
+            props: {
+                modelValue: String,
+                options: Array,
+                placeholder: { type: String, default: 'Search...' },
+                labelKey: { type: String, default: null },
+                valueKey: { type: String, default: null },
+                required: { type: Boolean, default: false }
+            },
+            emits: ['update:modelValue'],
+            data() {
+                return {
+                    isOpen: false,
+                    searchTerm: '',
+                    highlightedIndex: -1,
+                    searchTimeout: null,
+                    dropdownTop: 0,
+                    dropdownLeft: 0,
+                    dropdownWidth: 0,
+                    uniqueId: Math.random().toString(36).substr(2, 9)
+                };
+            },
+            computed: {
+                filteredOptions() {
+                    if (!this.searchTerm) return this.options;
+                    
+                    return this.options.filter(option => {
+                        const label = this.getLabel(option);
+                        return label.toLowerCase().includes(this.searchTerm.toLowerCase());
+                    });
+                },
+                displayValue() {
+                    if (!this.modelValue) return '';
+                    const option = this.options.find(opt => this.getValue(opt) === this.modelValue);
+                    return option ? this.getLabel(option) : this.modelValue;
+                }
+            },
+            methods: {
+                getLabel(option) {
+                    if (this.labelKey) return option[this.labelKey];
+                    return typeof option === 'object' ? option.label || option.name || String(option) : String(option);
+                },
+                getValue(option) {
+                    if (this.valueKey) return option[this.valueKey];
+                    return typeof option === 'object' ? option.value || option.id || option : option;
+                },
+                openDropdown() {
+                    this.isOpen = true;
+                    this.$el.classList.add('expanded');
+                    this.$nextTick(() => {
+                        this.$refs.searchInput?.focus();
+                    });
+                },
+                closeDropdown() {
+                    this.isOpen = false;
+                    this.$el.classList.remove('expanded');
+                    this.searchTerm = '';
+                    this.highlightedIndex = -1;
+                },
+                selectOption(option) {
+                    this.$emit('update:modelValue', this.getValue(option));
+                    this.closeDropdown();
+                },
+                onSearchInput(event) {
+                    clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        this.searchTerm = event.target.value;
+                        this.highlightedIndex = -1;
+                    }, 150); // Debounced search for better performance
+                },
+                handleKeydown(event) {
+                    if (!this.isOpen) {
+                        if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === ' ') {
+                            event.preventDefault();
+                            this.openDropdown();
+                        }
+                        return;
+                    }
+
+                    switch (event.key) {
+                        case 'ArrowDown':
+                            event.preventDefault();
+                            if (this.highlightedIndex < this.filteredOptions.length - 1) {
+                                this.highlightedIndex++;
+                            } else {
+                                this.highlightedIndex = 0; // Wrap to first option
+                            }
+                            this.scrollToHighlighted();
+                            break;
+                        case 'ArrowUp':
+                            event.preventDefault();
+                            if (this.highlightedIndex > 0) {
+                                this.highlightedIndex--;
+                            } else {
+                                this.highlightedIndex = this.filteredOptions.length - 1; // Wrap to last option
+                            }
+                            this.scrollToHighlighted();
+                            break;
+                        case 'Enter':
+                            event.preventDefault();
+                            if (this.highlightedIndex >= 0 && this.filteredOptions[this.highlightedIndex]) {
+                                this.selectOption(this.filteredOptions[this.highlightedIndex]);
+                            }
+                            break;
+                        case 'Escape':
+                            event.preventDefault();
+                            this.closeDropdown();
+                            this.$refs.dropdownTrigger?.focus();
+                            break;
+                        case 'Tab':
+                            this.closeDropdown();
+                            // Allow natural tab behavior
+                            break;
+                        case 'Home':
+                            event.preventDefault();
+                            this.highlightedIndex = 0;
+                            this.scrollToHighlighted();
+                            break;
+                        case 'End':
+                            event.preventDefault();
+                            this.highlightedIndex = this.filteredOptions.length - 1;
+                            this.scrollToHighlighted();
+                            break;
+                    }
+                },
+                scrollToHighlighted() {
+                    this.$nextTick(() => {
+                        const highlightedElement = document.getElementById(`option-${this.uniqueId}-${this.highlightedIndex}`);
+                        if (highlightedElement) {
+                            highlightedElement.scrollIntoView({ block: 'nearest' });
+                        }
+                    });
+                },
+                handleClickOutside(event) {
+                    if (!this.$el.contains(event.target)) {
+                        this.closeDropdown();
+                    }
+                }
+            },
+            mounted() {
+                document.addEventListener('click', this.handleClickOutside);
+            },
+            beforeUnmount() {
+                document.removeEventListener('click', this.handleClickOutside);
+                clearTimeout(this.searchTimeout);
+            },
+            template: `
+                <div class="relative dropdown-portal" :class="{ 'dropdown-open': isOpen }" @keydown="handleKeydown">
+                    <div 
+                        ref="dropdownTrigger"
+                        class="neomorphic w-full px-6 py-4 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        @click="openDropdown"
+                        @keydown="handleKeydown"
+                        :class="{ 'ring-2 ring-primary-500': isOpen }"
+                        role="combobox"
+                        :aria-expanded="isOpen"
+                        :aria-haspopup="'listbox'"
+                        :aria-label="placeholder + (required ? ' (required)' : '')"
+                        :aria-describedby="'dropdown-help-' + uniqueId"
+                        tabindex="0"
+                    >
+                        <div class="flex items-center justify-between">
+                            <span v-if="displayValue" class="text-gray-800 font-semibold tracking-tight">{{ displayValue }}</span>
+                            <span v-else class="text-gray-400 font-medium">{{ placeholder }}</span>
+                            <svg class="w-5 h-5 text-gray-500 transition-all duration-300" 
+                                 :class="{ 'rotate-180': isOpen, 'text-primary-600': isOpen }" 
+                                 fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Screen reader only help text -->
+                    <div :id="'dropdown-help-' + uniqueId" class="sr-only">
+                        {{ placeholder }}{{ required ? ' This field is required.' : '' }} Use arrow keys to navigate options. Press Enter to select.
+                    </div>
+                    
+                    <transition name="slide-fade">
+                        <div v-if="isOpen" 
+                             class="relative w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-64 overflow-hidden"
+                             role="listbox"
+                             :aria-label="'Options for ' + placeholder"
+                             :aria-activedescendant="highlightedIndex >= 0 ? 'option-' + uniqueId + '-' + highlightedIndex : undefined">
+                        <div class="p-3 border-b border-gray-100">
+                            <label :for="'search-input-' + uniqueId" class="sr-only">Search {{ placeholder.toLowerCase() }}</label>
+                            <input 
+                                ref="searchInput"
+                                :id="'search-input-' + uniqueId"
+                                type="text"
+                                class="w-full px-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50 font-medium"
+                                :placeholder="'Search ' + placeholder.toLowerCase()"
+                                @input="onSearchInput"
+                                @keydown.stop="handleKeydown"
+                                role="searchbox"
+                                :aria-label="'Search through ' + placeholder.toLowerCase() + ' options'"
+                                autocomplete="off"
+                            />
+                        </div>
+                        <div class="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                             role="group"
+                             :aria-label="'Available ' + placeholder.toLowerCase() + ' options'">
+                            <div v-if="filteredOptions.length === 0" 
+                                 class="p-4 text-center text-gray-500 text-sm font-medium"
+                                 role="status"
+                                 aria-live="polite">
+                                No options found
+                            </div>
+                            <div v-else>
+                                <div 
+                                    v-for="(option, index) in filteredOptions" 
+                                    :key="getValue(option)"
+                                    :id="'option-' + uniqueId + '-' + index"
+                                    class="px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-primary-50 border-b border-gray-50 last:border-b-0 group focus:outline-none focus:bg-primary-100"
+                                    :class="{ 
+                                        'bg-primary-100 text-primary-800': index === highlightedIndex,
+                                        'bg-primary-50': getValue(option) === modelValue && index !== highlightedIndex
+                                    }"
+                                    @click="selectOption(option)"
+                                    @mouseenter="highlightedIndex = index"
+                                    role="option"
+                                    :aria-selected="getValue(option) === modelValue"
+                                    :aria-label="getLabel(option) + (getValue(option) === modelValue ? ' (currently selected)' : '')"
+                                    tabindex="-1"
+                                >
+                                    <div class="flex items-center">
+                                        <span class="font-semibold text-gray-800 group-hover:text-primary-700 transition-colors tracking-tight">{{ getLabel(option) }}</span>
+                                        <svg v-if="getValue(option) === modelValue" 
+                                             class="w-4 h-4 ml-auto text-primary-600" 
+                                             fill="currentColor" 
+                                             viewBox="0 0 20 20"
+                                             aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </transition>
+                </div>
+            `
+        };
+
+        
+        
+        // Mount the app with error handling
+        try {
+            const app = createApp({
+                components: { 
+                    SearchableDropdown, 
+                    MultiSelectDropdown 
+                },
+                data() {
+                    return {
+                        loading: false,
+                        showResults: false,
+                        calculationCount: 0,
+                        currentSeason: 'rainy',
+                        formData: {
+                            farm_size: '',
+                            commune: '',
+                            farming_practice: '',
+                            fertilizer_type: '',
+                            fertilizer_rate: 0,
+                            crop_classes: [],  // Changed from crop_class to crop_classes array
+                            tillage_practice: '',
+                            irrigation: '',
+                            user_email: '',
+                            uses_machinery: false,
+                            fuel_consumption: 0,
+                            keeps_livestock: false,
+                            livestock_counts: { cattle: 0, goats: 0, sheep: 0, pigs: 0, poultry: 0, rabbits: 0 },
+                        },
+                        communes: [],
+                        farmingPractices: [],
+                        fertilizerTypes: [],
+                        cropClasses: [],
+                        tillagePractices: [],
+                        livestockTypes: [],
+                        irrigationOptions: [
+                            { label: 'Yes – Irrigated', value: 'yes' },
+                            { label: 'No – Rain-fed', value: 'no' }
+                        ],
+                        results: {},
+                        emissionsChart: null,
+                        dashboardChart: null,
+                        metrics: {},
+                        soil_data: {},
+                        weather_data: {},
+                    };
+                },
+
+                async mounted() {
+                    console.log('Vue app mounting...');
+                    if (typeof AOS !== 'undefined') AOS.init({ once: true });
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    await this.getFormOptions();
+                    this.initializeSwiper();
+                    console.log('Vue app mounted successfully');
+                },
+                methods: {
+                    async getFormOptions() {
+                        try {
+                            const apiBase = window.location.origin;
+                            const res = await fetch(`${apiBase}/api/form-options/`);
+                            const data = await res.json();
+                            this.communes = data.communes;
+                            this.farmingPractices = data.farming_practices;
+                            this.fertilizerTypes = data.fertilizer_types;
+                            this.cropClasses = data.crop_classes;
+                            this.tillagePractices = data.tillage_practices;
+                            this.livestockTypes = data.livestock_types;
+                            this.currentSeason = data.current_season;
+                        } catch (err) {
+                            console.error('Error loading form options:', err);
+                        }
+                    },
+                    async calculateEmissions() {
+                        // Client-side validation for crop selection
+                        if (!this.formData.crop_classes || this.formData.crop_classes.length === 0) {
+                            alert('Please select at least one crop type before calculating emissions.');
+                            return;
+                        }
+                        
+                        this.loading = true;
+                        try {
+                            const apiBase = window.location.origin;
+                            const res = await fetch(`${apiBase}/api/carbon-model/`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(this.formData),
+                            });
+                            const data = await res.json();
+                            if (!data.success) throw new Error(data.error || 'Calculation failed');
+                            
+                            // Debug: Log the entire response
+                            console.log('API Response:', data);
+                            console.log('Emissions data:', data.emissions);
+                            
+                            this.results = data;
+                            this.metrics = data.metrics;
+                            this.soil_data = data.soil_data;
+                            this.weather_data = data.weather_data;
+                            this.showResults = true;
+                            this.calculationCount++;
+                            this.renderChart();
+                        } catch (e) {
+                            console.error('Calculation error:', e);
+                            alert(e.message);
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+                    renderChart() {
+                        this.$nextTick(() => {
+                            // Check if we have emissions data
+                            if (!this.results.emissions) {
+                                console.log('No emissions data available for chart');
+                                return;
+                            }
+                            
+                            // Debug: Log the emissions data
+                            console.log('Emissions data for chart:', this.results.emissions);
+                            
+                            // Prepare detailed chart data with soil change
+                            const chartData = [
+                                this.results.emissions.fertilizer_emissions || 0,
+                                this.results.emissions.livestock_emissions || 0,
+                                this.results.emissions.fuel_emissions || 0,
+                                Math.abs(this.results.emissions.soil_change || 0)
+                            ];
+                            
+                            const chartLabels = ['Fertilizer', 'Livestock', 'Fuel', 'Soil Carbon'];
+                            
+                            console.log('Chart data array:', chartData);
+                            
+                            // Chart configuration with better colors
+                            const chartConfig = {
+                                type: 'doughnut',
+                                data: {
+                                    labels: chartLabels,
+                                    datasets: [{
+                                        label: 'Emissions (kg CO₂e)',
+                                        data: chartData,
+                                        backgroundColor: [
+                                            '#ef4444', // Red for fertilizer (high impact)
+                                            '#f97316', // Orange for livestock
+                                            '#eab308', // Yellow for fuel
+                                            '#22c55e'  // Green for soil carbon (positive)
+                                        ],
+                                        borderColor: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'],
+                                        borderWidth: 2,
+                                    }],
+                                },
+                                options: { 
+                                    responsive: true, 
+                                    maintainAspectRatio: false,
+                                    plugins: { 
+                                        legend: { 
+                                            display: true,
+                                            position: 'bottom',
+                                            labels: {
+                                                usePointStyle: true,
+                                                padding: 15,
+                                                font: { size: 11, weight: '500' },
+                                                color: '#374151',
+                                                generateLabels: function(chart) {
+                                                    const data = chart.data;
+                                                    return data.labels.map((label, i) => {
+                                                        const value = data.datasets[0].data[i];
+                                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                                                        return {
+                                                            text: `${label}: ${percentage}%`,
+                                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                                            hidden: false,
+                                                            index: i
+                                                        };
+                                                    });
+                                                }
+                                            }
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            titleColor: '#ffffff',
+                                            bodyColor: '#ffffff',
+                                            borderColor: '#166534',
+                                            borderWidth: 1,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const label = context.label || '';
+                                                    const value = context.parsed || 0;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                                                    return `${label}: ${value.toFixed(1)} kg CO₂e (${percentage}%)`;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    cutout: '50%'
+                                }
+                            };
+                            
+                            // Dashboard chart configuration (white text for dark background)
+                            const dashboardChartConfig = {
+                                ...chartConfig,
+                                options: {
+                                    ...chartConfig.options,
+                                    plugins: {
+                                        ...chartConfig.options.plugins,
+                                        legend: {
+                                            ...chartConfig.options.plugins.legend,
+                                            labels: {
+                                                ...chartConfig.options.plugins.legend.labels,
+                                                color: '#ffffff'
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                            
+                            // Create emissions breakdown chart
+                            if (this.$refs.emissionsChart) {
+                                if (this.emissionsChart) {
+                                    this.emissionsChart.destroy();
+                                }
+                                const ctx1 = this.$refs.emissionsChart.getContext('2d');
+                                this.emissionsChart = new Chart(ctx1, chartConfig);
+                            }
+                            
+                            // Create dashboard chart
+                            if (this.$refs.dashboardChart) {
+                                if (this.dashboardChart) {
+                                    this.dashboardChart.destroy();
+                                }
+                                const ctx2 = this.$refs.dashboardChart.getContext('2d');
+                                this.dashboardChart = new Chart(ctx2, dashboardChartConfig);
+                            }
+                        });
+                    },
+                    resetCalculator() {
+                        this.showResults = false;
+                        this.formData = {
+                            farm_size: '',
+                            commune: '',
+                            farming_practice: '',
+                            fertilizer_type: '',
+                            fertilizer_rate: 0,
+                            crop_classes: [],  // Changed from crop_class to crop_classes array
+                            tillage_practice: '',
+                            irrigation: '',
+                            user_email: '',
+                            uses_machinery: false,
+                            fuel_consumption: 0,
+                            keeps_livestock: false,
+                            livestock_counts: { cattle: 0, goats: 0, sheep: 0, pigs: 0, poultry: 0, rabbits: 0 },
+                        };
+                    },
+                    initializeSwiper() {
+                        // Initialize Swiper after the results are shown
+                        this.$nextTick(() => {
+                            if (typeof Swiper !== 'undefined') {
+                                new Swiper('.mySwiper', {
+                                    slidesPerView: 1,
+                                    spaceBetween: 30,
+                                    loop: true,
+                                    pagination: {
+                                        el: '.swiper-pagination',
+                                        clickable: true,
+                                    },
+                                    navigation: {
+                                        nextEl: '.swiper-button-next',
+                                        prevEl: '.swiper-button-prev',
+                                    },
+                                    autoplay: {
+                                        delay: 5000,
+                                        disableOnInteraction: false,
+                                    },
+                                });
+                            }
+                        });
+                    },
+                    downloadPDF() {
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+
+                        // Set up document metadata
+                        doc.setProperties({
+                            title: 'EcosystemPlus Carbon Analysis Report',
+                            subject: 'Farm Carbon Footprint Analysis',
+                            author: 'EcosystemPlus',
+                        });
+
+                        // Header
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(20);
+                        doc.text('EcosystemPlus Carbon Analysis Report', 105, 20, { align: 'center' });
+
+                        // Subheader
+                        doc.setFontSize(12);
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(`Report for farm in ${this.formData.commune}`, 105, 30, { align: 'center' });
+
+                        // Summary Section
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('1. Executive Summary', 14, 50);
+
+                        const summaryText = `
+                            This report provides a detailed analysis of the carbon footprint for a ${this.formData.farm_size}-hectare farm 
+                            located in ${this.formData.commune}. The assessment, based on the IPCC 2019 methodology, reveals a 
+                            net emission of ${this.results.emissions.raw_net_emissions.toFixed(2)} kg CO2e per year. Key contributing factors 
+                            include fertilizer application, livestock, and fuel consumption.
+                        `;
+                        doc.setFontSize(10);
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(summaryText, 14, 60, { maxWidth: 180 });
+
+                        // Emissions Breakdown Table
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('2. Emissions Breakdown', 14, 100);
+
+                        const tableData = [
+                            ['Fertilizer', `${this.results.emissions.fertilizer_emissions.toFixed(2)} kg CO2e`],
+                            ['Livestock', `${this.results.emissions.livestock_emissions.toFixed(2)} kg CO2e`],
+                            ['Fuel', `${this.results.emissions.fuel_emissions.toFixed(2)} kg CO2e`],
+                            ['Soil Carbon Change', `${this.results.emissions.soil_change.toFixed(2)} kg CO2e`],
+                        ];
+
+                        doc.autoTable({
+                            startY: 110,
+                            head: [['Source', 'Emissions']],
+                            body: tableData,
+                            theme: 'grid',
+                            headStyles: { fillColor: [22, 101, 52] },
+                        });
+
+                        // Recommendations Section
+                        doc.addPage();
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('3. Recommendations for Carbon Reduction', 14, 20);
+
+                        const recommendationsText = `
+                            Based on the analysis, the following strategies are recommended to reduce the farm's carbon footprint:
+                            
+                            - **Optimize Fertilizer Use:** Implement precision agriculture techniques to reduce synthetic fertilizer application.
+                            - **Improve Manure Management:** Adopt advanced manure storage and application methods to minimize methane emissions.
+                            - **Enhance Soil Health:** Promote no-till farming and cover cropping to increase soil carbon sequestration.
+                            - **Transition to Renewable Energy:** Explore solar-powered irrigation and machinery to reduce fossil fuel dependence.
+                        `;
+                        doc.setFontSize(10);
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(recommendationsText, 14, 30, { maxWidth: 180 });
+
+                        // Footer
+                        const pageCount = doc.internal.getNumberOfPages();
+                        for (let i = 1; i <= pageCount; i++) {
+                            doc.setPage(i);
+                            doc.setFontSize(8);
+                            doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+                        }
+
+                        // Save the PDF
+                        doc.save('EcosystemPlus_Carbon_Report.pdf');
+                    }
+                },
+            }).mount('#app');
+        } catch (error) {
+            console.error('Error mounting Vue app:', error);
+            document.getElementById('app').innerHTML = '<div class="p-8 text-center"><h1 class="text-2xl font-bold text-red-600">Application Error</h1><p class="text-gray-600 mt-2">Please refresh the page and try again.</p></div>';
+        }
+    </script>
+</body>
+</html>

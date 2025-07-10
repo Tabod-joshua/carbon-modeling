@@ -1,0 +1,26 @@
+{
+  "name": "carbon_modelling_v2",
+  "version": "1.0.0",
+  "description": "A modern, farmer-friendly platform for calculating, visualizing, and reporting agricultural carbon emissions in Cameroon.  \r **Tech stack:** Django REST API + Vue.js 3 frontend + Tailwind CSS + Chart.js + jsPDF.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "diag-network": "ping registry.npmjs.org"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "axe-core": "^4.10.3"
+  },
+  "dependencies": {
+    "aos": "^2.3.4",
+    "chart.js": "^4.5.0",
+    "gsap": "^3.13.0",
+    "lucide": "^0.525.0",
+    "particles.js": "^2.0.0",
+    "swiper": "^11.2.10",
+    "tailwindcss": "^4.1.11",
+    "vue": "^3.5.17"
+  }
+}

@@ -1,0 +1,29 @@
+# Core Django dependencies
+Django==5.2.3
+djangorestframework==3.16.0
+django-cors-headers==4.7.0
+
+# Database
+psycopg2-binary==2.9.10
+
+# Data processing
+pandas==2.3.0
+numpy==1.26.4  # LangChain currently requires numpy<2.0.0
+pydantic==2.7.1 # Required by LangChain for structured output
+
+# Code quality and formatting
+black==25.1.0
+flake8==7.3.0
+
+# Utilities
+python-dotenv==1.0.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+
+# LangChain and reporting
+langchain==0.1.11
+matplotlib==3.8.4
+reportlab==4.0.8
+
+# HTTP
+requests==2.32.4

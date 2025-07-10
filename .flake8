@@ -1,0 +1,17 @@
+[flake8]
+max-line-length = 88
+extend-ignore = 
+    # E203: whitespace before ':'
+    E203,
+    # W503: line break before binary operator
+    W503,
+    # F401: module imported but unused (common in Django)
+    F401
+exclude = 
+    carbon_calculator/migrations,
+    carbon_calculator/__pycache__,
+    */venv/*,
+    */env/*
+per-file-ignores = 
+    carbon_calculator/__init__.py:F401
+    carbon_calculator/urls.py:F401
