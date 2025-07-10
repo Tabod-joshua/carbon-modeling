@@ -1,1 +1,1 @@
-fix: Add gunicorn, whitenoise, and dj-database-url to requirements.txt
+fix: Correct gunicorn startCommand in render.yaml
