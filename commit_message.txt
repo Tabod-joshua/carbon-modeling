@@ -1,3 +1,1 @@
-feat: General update to project files.
-
-This commit includes general updates to the project files, including README.md and requirements.txt.
+feat: Add Render deployment configuration
